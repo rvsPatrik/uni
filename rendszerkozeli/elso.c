@@ -4,22 +4,19 @@
 #include <time.h>
 #include <unistd.h>
 
-
-void seperator(){
+void seperator() {
     printf("\n- - - - - - - - - -\n");
 }
 
-
-void showVersion(){
+void showVersion() {
     seperator();
     printf("\nA program verzioszama: alpha v0.1\n");
     printf("A program elkeszulesenek datuma: 2024.02.29");
-    pritnf("A program fejlesztojenek neve: Revesz Patrik\n");
+    printf("A program fejlesztojenek neve: Revesz Patrik\n");
     seperator();
 }
 
-
-void showHelp(){
+void showHelp() {
     seperator();
     printf("A program uzemmpdjai: \n");
     printf("- A program alapertelmezetten kuldokent viselkedik -\n");
@@ -33,7 +30,6 @@ void showHelp(){
     seperator();
 }
 
-
 int contains(char **array, int size, const char *element) {
     for (int i = 0; i < size; i++) {
         if (strcmp(array[i], element) == 0) {
@@ -44,47 +40,60 @@ int contains(char **array, int size, const char *element) {
 }
 
 
-int main(int argc,char* argv[]){
+int Measurement(int **Values) {
+    
+    int count = 100; 
+    
+    *Values = (int *)malloc(count * sizeof(int));
+    if (*Values == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return -1; 
+    }
+
+    
+    (*Values)[0] = 0;
+
+    
+    for (int i = 1; i < count; i++) {
+        
+        int random = rand() % 31 + 1;
+        
+        if (random <= 13) {
+            (*Values)[i] = (*Values)[i - 1];
+        }
+
+        else if (random <= 24) {
+            (*Values)[i] = (*Values)[i - 1] + 1;
+        }
+        
+        else {
+            (*Values)[i] = (*Values)[i - 1] - 1;
+        }
+    }
+
+    
+    return count;
+}
+
+int main(int argc, char *argv[]) {
 
     srand(time(NULL));
-
 
     if (strcmp(argv[0], "chart") != 0) {
         printf("Hiba: A futtatható állomány neve nem chart.\n");
         return 1;
     }
-    
-    char **arguments = (char **)malloc(argc-1 * sizeof(char *));
-    if (arguments == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        return 1;
-    }
-    for (int i = 1; i < argc-1; i++) {
-        arguments[i] = (char *)malloc((strlen(argv[i]) + 1) * sizeof(char));
-        if (arguments[i] == NULL) {
-            fprintf(stderr, "Memory allocation failed\n");
-            for (int j = 0; j < i; j++) {
-                free(arguments[j]);
-            }
-            free(arguments);
-            return 1;
-        }
-        strcpy(arguments[i], argv[i]);
-    }
 
-
-    char* filename = argv[0];
-    char* arg = argv[1];
-    
-    if (contains(arguments,argc-1,"--version")==1){
-        showVersion();
-        exit(0);
-    }
-    if (contains(arguments,argc-1,"--help")==1){
+    if (argc == 1 || contains(argv, argc, "--help")) {
         showHelp();
-        exit(0);
+        return 0;
     }
-    
+
+    if (contains(argv, argc, "--version")) {
+        showVersion();
+        return 0;
+    }
+
     int senderMode = 1;
     int useFile = 1;
 
@@ -104,7 +113,6 @@ int main(int argc,char* argv[]){
         }
     }
 
-
     if (senderMode) {
         printf("A program küldő üzemmódban fut.\n");
     } else {
@@ -117,12 +125,17 @@ int main(int argc,char* argv[]){
         printf("A program socketet használ a kommunikáció során.\n");
     }
 
-
-
-    for (int i = 0; i < argc; i++) {
-        free(arguments[i]);
+    
+    int *values;
+    int valueCount = Measurement(&values);
+    printf("Előállított értékek: ");
+    for (int i = 0; i < valueCount; i++) {
+        printf("%d ", values[i]);
     }
-    free(arguments);
+    printf("\n");
+
+    
+    free(values);
 
     return 0;
 }
